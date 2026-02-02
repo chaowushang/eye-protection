@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          护眼脚本
 // @namespace     https://github.com/chaowushang/eye-protection
-// @version        1.2
+// @version        1.1
 // @author         wushang
 // @description   修改网页背景色，优化性能。
 // @match         *://*/*
@@ -17,136 +17,113 @@
     'use strict';
 
     const COLORS = {
-        yellow: { name: "乡土黄", bg: "#F6F4EC", text: "#333" },
-        green:  { name: "豆沙绿", bg: "#CCE8CF", text: "#222" },
-        grey:   { name: "浅色灰", bg: "#E5E5E5", text: "#333" },
-        olive:  { name: "淡橄榄", bg: "#E1E6D7", text: "#222" }
+        yellow: { name: "乡土黄", val: "#F6F4EC" },
+        green:  { name: "豆沙绿", val: "#CCE8CF" },
+        grey:   { name: "浅色灰", val: "#F2F2F2" },
+        olive:  { name: "淡橄榄", val: "#E1E6D7" }
     };
 
-    let currentKey = GM_getValue("colorValue", "green");
-    let theme = COLORS[currentKey] || COLORS.green;
+    let currentColor = GM_getValue("colorValue", "green");
+    const currentSite = window.location.hostname;
 
-    // --- 1. 立即注入基础 CSS (防止闪烁) ---
-    const injectBaseStyle = () => {
-        const styleId = 'eye-protection-global';
-        if (document.getElementById(styleId)) return;
-
-        const css = `
-            /* 定义全局变量 */
-            :root {
-                --eye-bg: ${theme.bg} !important;
-                --eye-text: ${theme.text} !important;
-            }
-            /* 智能标记：仅针对被识别为“亮色背景”的元素 */
-            [eye-protected] {
-                background-color: var(--eye-bg) !important;
-                color: var(--eye-text) !important;
-                border-color: rgba(0,0,0,0.1) !important;
-            }
-            /* 强制排除媒体元素 */
-            img, video, canvas, [role="img"], svg {
-                background-color: transparent !important;
-            }
+    // --- 核心逻辑：注入 CSS 变量 ---
+    const injectStyles = () => {
+        const bg = COLORS[currentColor]?.val || COLORS.green.val;
+        const styleId = 'eye-protection-css';
+        let styleEl = document.getElementById(styleId);
+        if (!styleEl) {
+            styleEl = document.createElement('style');
+            styleEl.id = styleId;
+            document.head.appendChild(styleEl);
+        }
+        // 使用 CSS 变量和强制覆盖逻辑
+        styleEl.innerHTML = `
+            :root { --eye-bg: ${bg} !important; }
+            [data-eye-modified="true"] { background-color: var(--eye-bg) !important; }
         `;
-        GM_addStyle(css);
     };
 
-    // --- 2. 核心：智能识别亮色背景 ---
-    const isBrightBackground = (el) => {
-        // 排除掉已经处理过的或特殊的标签
-        if (el.hasAttribute('eye-protected')) return false;
-        const skipTags = ['IMG', 'VIDEO', 'CANVAS', 'SVG', 'INPUT', 'TEXTAREA', 'SELECT'];
-        if (skipTags.includes(el.tagName)) return false;
+    // --- 检查并标记元素 ---
+    const processElement = (el) => {
+        if (el.nodeType !== 1) return;
+        // 避开干扰标签
+        const skipTags = ['SCRIPT', 'STYLE', 'CANVAS', 'VIDEO', 'IMG', 'INPUT'];
+        if (skipTags.includes(el.tagName)) return;
 
         const style = window.getComputedStyle(el);
-        
-        // 如果有背景图片，通常不处理（保持原样）
-        if (style.backgroundImage !== 'none') return false;
-
         const bg = style.backgroundColor;
+
+        // 提取 RGB
         const rgb = bg.match(/\d+/g);
-        
         if (rgb && rgb.length >= 3) {
             const [r, g, b] = rgb.map(Number);
-            const alpha = rgb[3] !== undefined ? Number(rgb[3]) : 1;
-            
-            // 判定逻辑：
-            // 1. 透明度太低的不处理
-            // 2. R,G,B 均大于 235 的视为浅色背景 (接近白色)
-            return alpha > 0.5 && r > 235 && g > 235 && b > 235;
-        }
-        return false;
-    };
-
-    const processNode = (node) => {
-        if (node.nodeType !== 1) return;
-        if (isBrightBackground(node)) {
-            node.setAttribute('eye-protected', 'true');
-        }
-        // 递归处理子节点
-        const children = node.children;
-        for (let i = 0; i < children.length; i++) {
-            processNode(children[i]);
+            // 判定是否为“白色系”背景 (可根据需求调整阈值)
+            if (r > 240 && g > 240 && b > 240) {
+                el.setAttribute('data-eye-modified', 'true');
+            }
         }
     };
 
-    // --- 3. 性能优化版 MutationObserver ---
-    let timer = null;
-    const observer = new MutationObserver((mutations) => {
-        // 使用防抖处理，避免频繁扫描
-        if (timer) clearTimeout(timer);
-        timer = setTimeout(() => {
+    // --- 观察者：处理动态加载的内容 ---
+    let observer;
+    const startObserving = () => {
+        // 先处理现有元素 (限制范围提高性能)
+        document.querySelectorAll('div, section, main, article, body, aside, nav').forEach(processElement);
+
+        observer = new MutationObserver((mutations) => {
             for (const mutation of mutations) {
                 mutation.addedNodes.forEach(node => {
-                    if (node.nodeType === 1) processNode(node);
+                    if (node.nodeType === 1) {
+                        processElement(node);
+                        // 处理子节点
+                        node.querySelectorAll('div, section, article').forEach(processElement);
+                    }
                 });
             }
-        }, 100);
-    });
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+    };
 
-    // --- 4. 菜单管理 ---
+    // --- 菜单管理 ---
     const setupMenu = () => {
         const disabledSites = GM_getValue("disabledSites", []);
-        const isCurrentDisabled = disabledSites.includes(window.location.hostname);
+        const isDisabled = disabledSites.includes(currentSite);
 
+        // 1. 颜色切换菜单
         Object.keys(COLORS).forEach(key => {
-            const icon = currentKey === key ? "✅ " : "○ ";
+            const icon = currentColor === key ? "● " : "○ ";
             GM_registerMenuCommand(`${icon}${COLORS[key].name}`, () => {
                 GM_setValue("colorValue", key);
-                location.reload();
+                location.reload(); // 刷新以应用新颜色
             });
         });
 
-        const toggleText = isCurrentDisabled ? "🚀 开启此站护眼" : "🛑 禁用此站护眼";
+        // 2. 启用/禁用切换
+        const toggleText = isDisabled ? "✅ 在此站启用护眼" : "❌ 在此站禁用护眼";
         GM_registerMenuCommand(toggleText, () => {
             let sites = GM_getValue("disabledSites", []);
-            if (isCurrentDisabled) {
-                sites = sites.filter(s => s !== window.location.hostname);
+            if (isDisabled) {
+                sites = sites.filter(s => s !== currentSite);
             } else {
-                sites.push(window.location.hostname);
+                sites.push(currentSite);
             }
             GM_setValue("disabledSites", sites);
             location.reload();
         });
     };
 
-    // --- 5. 执行初始化 ---
+    // --- 初始化 ---
     const init = () => {
         const disabledSites = GM_getValue("disabledSites", []);
-        if (disabledSites.includes(window.location.hostname)) return;
+        if (disabledSites.includes(currentSite)) return;
 
-        injectBaseStyle();
-
-        // 首次运行
-        const start = () => {
-            processNode(document.body);
-            observer.observe(document.body, { childList: true, subtree: true });
-        };
-
+        injectStyles();
+        
+        // 确保 DOM 加载后开始
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', start);
+            document.addEventListener('DOMContentLoaded', startObserving);
         } else {
-            start();
+            startObserving();
         }
     };
 

@@ -1,15 +1,16 @@
 // ==UserScript==
-// @name          护眼脚本 (性能优化版)
-// @author         猫雷NyaRu_Official / Optimized by AI
-// @description   修改网页背景色，支持动态加载页面，优化性能，提供更舒适的护眼体验。
-// @version        4.0
-// @license        Apache-2.0
+// @name          护眼脚本
+// @namespace     https://github.com/chaowushang/eye-protection
+// @version        1.1
+// @author         wushang
+// @description   修改网页背景色，优化性能。
 // @match         *://*/*
 // @grant          GM_registerMenuCommand
 // @grant          GM_setValue
 // @grant          GM_getValue
 // @grant          GM_addStyle
-// @namespace      https://greasyfork.org/zh-CN/users/719628
+// @downloadURL    https://fastly.jsdelivr.net/gh/chaowushang/eye-protection@main/huyan.user.js
+// @updateURL      https://fastly.jsdelivr.net/gh/chaowushang/eye-protection@main/huyan.user.js
 // ==/UserScript==
 
 (() => {

@@ -3,5 +3,6 @@
 
 Raw 直连：
 https://raw.githubusercontent.com/chaowushang/eye-protection/main/huyan.user.js
+
 CDN 加速（推荐）：
 https://fastly.jsdelivr.net/gh/chaowushang/eye-protection@main/huyan.user.js

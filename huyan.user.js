@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          护眼脚本
 // @namespace     https://github.com/chaowushang/eye-protection
-// @version        1.3
+// @version        1.1
 // @author         wushang
 // @description   修改网页背景色，优化性能。
 // @match         *://*/*

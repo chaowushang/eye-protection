@@ -1,8 +1,56 @@
-# 1.1
-油猴护眼（豆沙绿）
+# 护眼脚本 (Eye Protection Script)
 
-Raw 直连：
-https://raw.githubusercontent.com/chaowushang/eye-protection/main/huyan.user.js
+一款轻量、高效的浏览器护眼扩展脚本。通过将网页原本刺眼的纯白色背景替换为经过调优的舒适色调，有效缓解长时间用眼疲劳。
 
-CDN 加速（推荐）：
-https://fastly.jsdelivr.net/gh/chaowushang/eye-protection@main/huyan.user.js
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-4.3-green.svg)](https://fastly.jsdelivr.net/gh/chaowushang/eye-protection@main/huyan.user.js)
+
+## 🌟 核心功能
+
+*   **智能变色**：精准识别网页中的“大白底”，将其转换为舒适的护眼色，同时保护图片、视频和输入框的原始样式不受影响。
+*   **四种主题可选**：
+    *   🌾 **乡土黄**：经典纸张质感，适合长时间文字阅读。
+    *   🍵 **豆沙绿**：公认最舒适的护眼色，清新自然。
+    *   🎨 **浅色灰**：低调简约，适合各类办公与设计类网页。
+    *   🍃 **淡橄榄**：温润如玉，减少屏幕蓝光感。
+*   **动态内容支持**：采用高性能观察者模式（MutationObserver），完美支持瀑布流网页（如微博、B站、百度搜索结果）的自动变色，无需刷新。
+*   **站点黑名单**：通过油猴菜单一键禁用/启用特定网站，灵活管理。
+*   **性能优化**：底层基于 CSS 变量与标记算法，占用内存极低，不卡顿。
+
+## 🚀 安装方式
+
+1.  **准备环境**：确保浏览器已安装脚本管理器，如 [Tampermonkey](https://www.tampermonkey.net/)、Violentmonkey 或 GreaseMonkey。
+2.  **一键安装**：点击下方链接即可自动弹出安装界面：
+    *   👉 [**点击安装护眼脚本**](https://fastly.jsdelivr.net/gh/chaowushang/eye-protection@main/huyan.user.js)
+3.  **在线更新**：脚本已配置自动更新地址，后续功能优化将自动同步。
+
+## 🛠 使用说明
+
+安装完成后，点击浏览器右上角的油猴插件图标，在“护眼脚本”菜单下即可进行操作：
+
+*   **切换颜色**：实时预览并切换四种护眼背景色。
+*   **在此站启用/禁用**：如果某个网页的样式与脚本冲突，可点击此项将其加入黑名单。
+*   **设置永久生效**：脚本会自动记忆你的颜色偏好，跨设备同步（需开启插件同步功能）。
+
+## 📈 更新日志
+
+### v4.3 (当前版本)
+*   优化了识别算法，解决了部分网页文字对比度过低的问题。
+*   更换了国内 CDN 加速链接，提升脚本加载与更新速度。
+*   支持单站点“开关”记忆功能。
+
+### v1.1 - v3.0
+*   基础功能构建，实现背景色替换与菜单控制。
+
+## 📄 开源协议
+
+本项目遵循 **Apache-2.0** 协议开源。
+
+## 🤝 贡献与反馈
+
+如果你在使用过程中遇到网页排版错乱、颜色异常等问题，欢迎通过以下方式反馈：
+*   在 GitHub 提交 [Issues](https://github.com/chaowushang/eye-protection/issues)
+*   通过 GreasyFork 留言
+
+---
+**提示**：长时间用眼建议每 45 分钟远眺休息，本工具仅作为辅助手段。

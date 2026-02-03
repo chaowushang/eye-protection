@@ -3,7 +3,7 @@
 一款轻量、高效的浏览器护眼扩展脚本。通过将网页原本刺眼的纯白色背景替换为经过调优的舒适色调，有效缓解长时间用眼疲劳。
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-4.3-green.svg)](https://fastly.jsdelivr.net/gh/chaowushang/eye-protection@main/huyan.user.js)
+[![Version](https://img.shields.io/badge/version-1.1-green.svg)](https://fastly.jsdelivr.net/gh/chaowushang/eye-protection@main/huyan.user.js)
 
 ## 🌟 核心功能
 
